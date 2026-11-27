@@ -9,7 +9,7 @@
 - 提交经检查的代码：`git add <文件>`，然后 `git commit -m "说明"`。
 - 本仓库采用源码白名单；新增源码须同时将路径加入 `.gitignore` 的例外列表。
 - `git show baseline-20261127:<文件>` 可查看本次基线，不要在运行目录执行全目录 reset 或 clean。
-- 当前未配置 GitHub 等外部远程；本地 clone 的 origin 指向云端工作目录，仅用于同步读取。
+- 团队公开仓库：`https://github.com/hoojw/ec-mid.git`。本地 `origin` 指向 GitHub，`production` 保留云端工作目录地址。
 - 修改部署配置时先核对线上服务。`deploy/systemd` 是单元文件快照，不会自动安装或启用。
 
 ## 不纳入版本库
@@ -24,3 +24,18 @@ venv/node_modules、备份与候选目录均保留原位置并忽略。历史 AG
 - Node 依赖由 `package-lock.json` 锁定；成本表解析与导出使用 Python/openpyxl。
 - 环境变量使用 `/etc/ec-mid/ec-mid.env`，不入库。
 - 成本、费率、活动计算、售后和交易分析源码均纳入。
+
+## 团队协作
+
+```sh
+git switch main
+git pull --ff-only origin main
+git switch -c feat/your-task
+# 修改代码、验证后提交指定文件
+git add <files>
+git commit -m "说明本次修改"
+git push -u origin HEAD
+```
+
+在 GitHub 发起 PR，审核后合并到 main；仓库公开不代表他人有写入权限，成员需要仓库协作者权限，或从 fork 发起 PR。
+代码推送不自动部署生产，发布须另行执行并记录提交号。GitHub 分支保护、协作者名单尚未配置。

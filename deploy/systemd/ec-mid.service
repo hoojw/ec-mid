@@ -1,0 +1,23 @@
+[Unit]
+Description=EC middle platform prototype (isolated demo database)
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+[Service]
+Type=simple
+User=ec-mid
+Group=ec-mid
+WorkingDirectory=/opt/ec-mid
+EnvironmentFile=/etc/ec-mid/ec-mid.env
+ExecStart=/opt/nodejs/current/bin/node /opt/ec-mid/server.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/ec-mid/public/uploads /var/lib/ec-mid
+MemoryMax=512M
+UMask=0027
+[Install]
+WantedBy=multi-user.target

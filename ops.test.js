@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {assess,key}=require('./ops-service');
+assert.equal(assess({price:'19.9999',boxes:2,floor:'10.0000'}).result,'低于底价');
+assert.equal(assess({price:'20.0000',boxes:2,floor:'10.0000'}).result,'价格规则通过');
+assert.equal(assess({price:'0',boxes:1,floor:'0'}).result,'价格规则通过');
+assert.equal(assess({price:null,boxes:1,floor:'10'}).result,'待维护');
+assert.equal(assess({price:'10',boxes:0,floor:'10'}).result,'待维护');
+assert.equal(assess({price:'10',boxes:1,floor:null}).result,'待维护');
+assert.notEqual(key('天猫','店1','单号1'),key('天猫','店2','单号1'));
+assert.notEqual(key('天猫','店1','单号1'),key('美团','店1','单号1'));
+assert.equal(assess({price:'999999999999.9999',boxes:1,floor:'999999999999.9999'}).result,'价格规则通过');
+console.log('Patrol boundaries, missing fields, valid zero and cross-store object identity passed');

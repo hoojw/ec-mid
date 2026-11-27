@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const math=require('./public/activity-math');
+const {assemble}=require('./activity-data');
+const base={unitCost:'10',boxes:'2',price:'50',delivery:'3',merchantDiscount:'5',platformDiscount:'2',freight:'4',packaging:'1',other:'0',rate:'8',quantity:'2',feeBasis:'receivable',floor:''};
+const r=math.calculate(base);assert.equal(r.buyerPaid,'46.0000');assert.equal(r.receivable,'48.0000');assert.equal(r.fee,'3.84');assert.equal(r.profit,'19.1600');assert.equal(r.totalProfit,'38.3200');assert.equal(r.belowFloor,null);
+assert.equal(math.calculate({...base,feeBasis:'price'}).fee,'4.00');assert.equal(math.calculate({...base,feeBasis:'buyerPaid'}).fee,'3.68');
+assert.equal(math.calculate({...base,platformDiscount:'10'}).receivable,r.receivable,'platform reimbursement must not be counted twice');
+assert.equal(math.calculate({...base,floor:'51'}).belowFloor,true);
+assert.equal(math.calculate({...base,unitCost:'0',boxes:'1',price:'0',delivery:'0',merchantDiscount:'0',platformDiscount:'0',freight:'0',packaging:'0',other:'0',rate:'0'}).profit,'0.0000');
+for(const patch of [{unitCost:''},{freight:null},{boxes:0},{quantity:-1},{platformDiscount:'100'},{rate:'101'},{price:'NaN'},{rate:'1.12345'}])assert.throws(()=>math.calculate({...base,...patch}));
+assert.equal(math.calculate({...base,price:'0.125',delivery:'0',merchantDiscount:'0',platformDiscount:'0',feeBasis:'price'}).fee,'0.01');
+const enriched=assemble({store:{},products:[{productId:'p',skuId:'s',code:'6900000000000',boxes:2},{productId:'q',skuId:'t',code:'6900000000000',boxes:1}],costs:[{code:'6900000000000',cost:'0',source:'店铺上传'}],subsidies:[{upc:'6900000000000',sku_id:'s',日期:'2026-11-25'}],freights:[{code:'6900000000000',boxes:1,cost:'3.123456',date:'2026-11-25'}],lowest:[],history:[{code:'6900000000000',floor:'100'}]});
+assert.equal(enriched[0].purchaseCost,'0.0000');assert.equal(enriched[0].freight,null,'never borrow freight for another box tier');assert.equal(enriched[1].freight,'3.1235');assert.equal(enriched[0].campaigns.length,1);assert.equal(enriched[1].campaigns.length,0);assert.ok(enriched[0].historicalFloors[0].scope.includes('未标明店铺'));assert.equal(enriched[0].combinedCost,null);
+console.log('Activity arithmetic, fee bases, missing inputs, quantity tiers and reference scope passed');
